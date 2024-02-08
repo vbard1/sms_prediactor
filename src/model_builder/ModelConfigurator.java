@@ -235,6 +235,17 @@ public class ModelConfigurator {
         }
     }
 
+    //TODO use on type="2"
+    private void removeNodesWithTagValue(Node node,String tag,String value) {
+        if (node.getNodeType() == Node.ELEMENT_NODE) {
+            NodeList children = node.getChildNodes();
+            for (int i = 0; i < children.getLength(); i++) {
+                removeNodesWithTagValue(children.item(i),tag,value);
+            }
+        }
+    }
+
+
     // Méthode récursive pour parcourir et supprimer les nœuds sms avec une adresse
     // différente
     public static void deleteSmsWithDifferentAddress(Node node, String selectedAddress) {
