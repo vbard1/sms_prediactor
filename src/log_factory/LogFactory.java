@@ -4,9 +4,11 @@ import java.io.*;
 import java.util.Date;
 import java.util.logging.*;
 
+import src.Main;
+
 public class LogFactory {
 
-    private final static String PATH_TO_LOGS_FOLDER = "./outputs/logs/";
+    private final static String PATH_TO_LOGS_FOLDER = Main.config.getParamValue("path_to_logs_folder");
     private final static int MAX_LOG_FILES = 5;
 
     public static Logger getNewDatedLogFactory(Logger logger) {

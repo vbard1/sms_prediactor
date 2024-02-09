@@ -10,7 +10,6 @@ import javax.xml.parsers.*;
 import org.xml.sax.*;
 
 import src.Main;
-import src.config_reader.ConfigReader;
 
 import org.w3c.dom.*;
 
@@ -79,7 +78,7 @@ public class ModelConfigurator {
 
         // Obtention du nombre minimum d'occurrences à partir du fichier de
         // configuration
-        int minOccurrences = ConfigReader.getMinChatOccurrences();
+        int minOccurrences = Integer.parseInt(Main.config.getParamValue("nb_min_chats_per_adress_to_be_trained"));
 
         // TreeMap pour trier les adresses par ordre décroissant d'occurrences
         TreeMap<Integer, String> sortedAddresses = new TreeMap<>((o1, o2) -> o2 - o1);

@@ -3,7 +3,6 @@ package src;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Map;
 import java.util.logging.*;
 import javax.swing.*;
 
@@ -14,12 +13,13 @@ import src.model_builder.ModelConfigurator;
 public class Main {
 
     public static Logger log;
-    public static Map config;
+    public static ConfigReader config;
 
     public static void main(String[] args) {
         try {
+            config = new ConfigReader();
+            config.readConfigFile();
             log = LogFactory.getNewDatedLogFactory(Logger.getLogger(Main.class.getName()));
-            config = ConfigReader.readConfigFile();
             ShowMenu();
         } catch (Exception e) {
             StringWriter sw = new StringWriter();
