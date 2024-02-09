@@ -1,17 +1,20 @@
 package src.model_builder;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import src.Main;
+import src.config_reader.ConfigReader;
 
 public class Word {
     public String value;
-    public HashMap<Word, Integer> nextWords;
+    public int occurrences;
+    public ArrayList<Word> nextWords;
 
     public Word(String value) {
         this.value = value;
-        this.nextWords = new HashMap<>();
+        this.occurrences=1;
+        this.nextWords = new ArrayList<>();
     }
 
     @Override
@@ -23,31 +26,31 @@ public class Word {
             return false;
         }
         Word otherWord = (Word) obj;
-        return value.toLowerCase().equals(otherWord.value.toLowerCase());
+        //TODO paramétrer lignorance de la casse avec la config
+        return value.equals(otherWord.value);
     }
 
     @Override
     public int hashCode() {
-        return value.toLowerCase().hashCode();
+        return value.hashCode();
     }
 
     @Override
     public String toString() {
+        return toStringRecursive(this, 0);
+    }
+    
+    private String toStringRecursive(Word word, int depth) {
         StringBuilder sb = new StringBuilder();
-        toStringRecursive(sb, this, 0);
+        sb.append("\n").append("  ".repeat(depth)).append(word.value)
+                .append(" (").append(word.occurrences).append(")");
+    
+        for (Word nextWord : word.nextWords) {
+            sb.append(toStringRecursive(nextWord, depth + 1));
+        }
+    
         return sb.toString();
     }
-
-    private void toStringRecursive(StringBuilder sb, Word word, int depth) {
-        for (Map.Entry<Word, Integer> entry : word.nextWords.entrySet()) {
-            Word nextWord = entry.getKey();
-            int count = entry.getValue();
-            // Ajoute la prochaine Word et le nombre d'occurrences
-            sb.append("\n");
-            sb.append("  ".repeat(depth + 1)).append(nextWord.value)
-                    .append(" (").append(count).append(")");
-            // Appel récursif pour les suivants de la prochaine Word
-            toStringRecursive(sb, nextWord, depth + 2);
-        }
-    }
+    
+    
 }

@@ -15,7 +15,7 @@ public class ConfigReader {
         return configMap.getOrDefault(DEFAULT_PROFILE + ".nb_min_chats_per_adress_to_be_trained", 0);
     }
 
-    private static Map<String, Integer> readConfigFile() {
+    public static Map<String, Integer> readConfigFile() {
         Map<String, Integer> configMap = new HashMap<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(CONFIG_FILE))) {
             String line;

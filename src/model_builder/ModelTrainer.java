@@ -3,30 +3,32 @@ package src.model_builder;
 import java.awt.List;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.Map;
 
 import org.w3c.dom.*;
 
 import src.Main;
-import src.json_factory.JsonFactory;
 
 public class ModelTrainer {
 
-    static HashMap<Word, Integer> occurenceTree;
+    static ArrayList<Word> occurenceTree;
 
     public static void train(SmsXmlFile sourceFile, Document preparedXMLSources, String selectedAddress) {
-        occurenceTree = new HashMap<>();
-        // ArrayList<Word>(sourceFile.adresses.get(selectedAddress));
+        occurenceTree = new ArrayList<>();
         Main.log.info("Starting Model Trainer with address " + selectedAddress);
-        traverseNodes(preparedXMLSources.getDocumentElement()); // recurse through all nodes
-        for (Word word : occurenceTree.keySet()) {
+        traverseNodes(preparedXMLSources.getDocumentElement());
+        for (Word word : occurenceTree) {
             Main.log.info(word.toString());
         }
-
-        // JsonFactory.writeJsonToFile(JsonFactory.convertToJson(probabilityTree),
-        // "outputs/test.json");
+        // TODO nettoyer
+        // TODO Transformer les occurences en fréquences après comptage (pendant? bof)
+        // TODO Mettre tout l'arbre dans un fichier ou une structure de données appropriée (?)
+        // TODO Filtrer par message reçu ou envoyé
+        // TODO développer la factory de suggestion live (android? -> cycle de vie : en conf introduire la période à considérer depuis le jour J (backtime eg. -3 mois) 
+                // et implémenter un runner de réentrainnement de model réguler)
+        // TODO implémenter l'option non ne pas réentrainner le modèle...
+        // TODO ...et dans ce cas lister les fichiers existant (pour celà, y associer des données notamment le destinataire concerné)
+        // TOCONSIDER adapter la réponse en fonction du message reçu? (?)
     }
 
     public static void traverseNodes(Node node) {
@@ -54,23 +56,49 @@ public class ModelTrainer {
             return;
 
         LinkedList<String> sentenceList = new LinkedList<>(Arrays.asList(sentence));
+
+        //traitement du premier mot
         Word word = new Word(sentenceList.get(0));
         Word referenceWord = word;
-
-        if (occurenceTree.containsKey(word)) {
-            occurenceTree.put(word, occurenceTree.get(word) + 1);
-        } else {
-            occurenceTree.put(word, 1);
-        }
-
-        for (String currentWordString : sentenceList) {
-            word = new Word(currentWordString);
-            if (referenceWord.nextWords.containsKey(word)) {
-                referenceWord.nextWords.put(word, referenceWord.nextWords.get(word) + 1);
-            } else {
-                referenceWord.nextWords.put(word, 1);
+        boolean found = false;
+        int i = 0;
+        while (!found&&i<occurenceTree.size()) {
+            if(occurenceTree.get(i).equals(word)){
+                occurenceTree.get(i).occurrences++;
+                found=true;
+                referenceWord = occurenceTree.get(i);
             }
-            referenceWord = word;
+            i++;
+        }
+        if(!found){
+            occurenceTree.add(word);
+            referenceWord = occurenceTree.getLast();
+        }
+        
+        //traitement ittératif des mots suivants
+        String currentWordString;
+        for (int currentWordIndex = 1; currentWordIndex<sentenceList.size();currentWordIndex++) {
+            currentWordString = sentenceList.get(currentWordIndex);
+            word = new Word(currentWordString);
+            
+            // 1. récupérer l'index du mot de la phrase s'il existe dans les mots suivants et incrémenter
+            found = false;
+            i = 0;
+            while (!found&&i<referenceWord.nextWords.size()) {
+                if(referenceWord.nextWords.get(i).equals(word)){
+                    referenceWord.nextWords.get(i).occurrences++;
+                    found=true;
+                    referenceWord = referenceWord.nextWords.get(i);
+                }
+                i++;
+            }
+
+            // 2. si pas trouvé, le rajouter
+            if(!found){
+                referenceWord.nextWords.add(word);
+                referenceWord = referenceWord.nextWords.getLast();
+            }
+
         }
     }
     /*public static void addSentence(String[] sentence) {

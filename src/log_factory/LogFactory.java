@@ -18,7 +18,7 @@ public class LogFactory {
             
             File[] existingLogs = logsFolder.listFiles(new FilenameFilter() {
                 public boolean accept(File dir, String name) {
-                    return name.toLowerCase().endsWith(".log");
+                    return (name.toLowerCase().endsWith(".log")||name.toLowerCase().endsWith(".lck"));
                 }
             });
 
