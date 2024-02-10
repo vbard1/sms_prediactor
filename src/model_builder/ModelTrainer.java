@@ -113,30 +113,4 @@ public class ModelTrainer {
       }
     }
   }
-  /*public static void addSentence(String[] sentence) {
-        if (sentence.length == 0)
-            return;
-    
-        Word previousWord = null;
-        Map<Word, Integer> occurrencesInSentence = new HashMap<>();
-    
-        for (String currentWordString : sentence) {
-            Word currentWord = new Word(currentWordString);
-    
-            // Mise à jour de l'occurrence pour le mot actuel dans occurrencesInSentence
-            occurrencesInSentence.compute(currentWord, (k, v) -> (v == null) ? 1 : v + 1);
-    
-            // Mise à jour de l'occurrence pour le mot suivant dans la séquence
-            if (previousWord != null) {
-                previousWord.nextWords.compute(currentWord, (k, v) -> (v == null) ? 1 : v + 1);
-            }
-    
-            previousWord = currentWord;
-        }
-    
-        // Mettre à jour occurenceTree avec les occurrences dans occurrencesInSentence
-        occurrencesInSentence.forEach((word, count) ->
-                occurenceTree.compute(word, (k, v) -> (v == null) ? count : v + count));
-    }*/
-
 }
