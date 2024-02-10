@@ -49,7 +49,7 @@ public class ModelConfigurator {
             if (selectedAddress != null) {
                 deleteSmsWithDifferentAddress(preparedXMLSources.getDocumentElement(), selectedAddress);
                 Main.log.info("Selected address was isolated");
-                removeNodesWithTagValue(preparedXMLSources.getDocumentElement(),"type","2");            
+                removeNodesWithTagValue(preparedXMLSources.getDocumentElement(),"type","1");            
                 Main.log.info("ModelConfigurator prepared the data");
                 ModelTrainer.train(smsXmlFile,preparedXMLSources, selectedAddress);
             } else {
