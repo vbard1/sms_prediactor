@@ -1,14 +1,14 @@
 package src.model_builder;
 
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import org.w3c.dom.*;
 import src.Main;
+import src.log_factory.LogFactory;
 
 public class ModelTrainer {
 
-  static Word occurenceTree;
+  static WordTree wordTree;
 
   public static void train(
     SmsXmlFile sourceFile,
@@ -16,13 +16,20 @@ public class ModelTrainer {
     String selectedAddress
   ) {
     Main.log.info("Starting Model Trainer with address " + selectedAddress);
-    occurenceTree = new Word("ROOT");
+    //computing sentences into the occurence tree
+    wordTree = new WordTree("ROOT_OCCURENCES",0);
     traverseNodes(preparedXMLSources.getDocumentElement());
-    for (Word word : occurenceTree.nextWords) {
+
+    //computing frequencies out of occurence tree
+    wordTree.computeFrequencies();
+
+    LogFactory.toggleConsoleLogs(false, Main.log);
+    for (WordTree word : wordTree.nextWords) {
       Main.log.info(word.toString());
     }
+    LogFactory.toggleConsoleLogs(true, Main.log);
+
     // TODO nettoyer
-    // TODO Transformer les occurences en fréquences après comptage (pendant? bof)
     // TODO Mettre tout l'arbre dans un fichier ou une structure de données appropriée (?)
     // TODO Filtrer par message reçu ou envoyé
     // TODO développer la factory de suggestion live (android? -> cycle de vie : en conf introduire la période à considérer depuis le jour J (backtime eg. -3 mois)
@@ -61,27 +68,24 @@ public class ModelTrainer {
     if (sentence.length == 0) return;
 
     LinkedList<String> sentenceList = new LinkedList<>(Arrays.asList(sentence));
-    Word word = new Word(sentenceList.get(0));
-    Word referenceWord = occurenceTree;
+    WordTree word;
+    WordTree referenceWord = wordTree;
     boolean found = false;
     int i = 0;
 
     //traitement ittératif des mots
     String currentWordString;
-    for (
-      int currentWordIndex = 0;
-      currentWordIndex < sentenceList.size();
-      currentWordIndex++
-    ) {
+    for (int currentWordIndex = 0; currentWordIndex < sentenceList.size();currentWordIndex++) {
       currentWordString = sentenceList.get(currentWordIndex);
-      word = new Word(currentWordString);
+      word = new WordTree(currentWordString,referenceWord.depth);
 
       // 1. récupérer l'index du mot de la phrase s'il existe dans les mots suivants et incrémenter
       found = false;
       i = 0;
       while (!found && i < referenceWord.nextWords.size()) {
         if (referenceWord.nextWords.get(i).equals(word)) {
-          referenceWord.nextWords.get(i).occurrences = referenceWord.nextWords.get(i).occurrences+1;
+          referenceWord.nextWords.get(i).occurrences =
+            referenceWord.nextWords.get(i).occurrences + 1;
           found = true;
           referenceWord = referenceWord.nextWords.get(i);
         }

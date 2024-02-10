@@ -48,7 +48,8 @@ public class ModelConfigurator {
             chooseRecipientToTrainWith(preparedXMLSources);
             if (selectedAddress != null) {
                 deleteSmsWithDifferentAddress(preparedXMLSources.getDocumentElement(), selectedAddress);
-                Main.log.info("Selected address was isolated");    
+                Main.log.info("Selected address was isolated");
+                removeNodesWithTagValue(preparedXMLSources.getDocumentElement(),"type","2");            
                 Main.log.info("ModelConfigurator prepared the data");
                 ModelTrainer.train(smsXmlFile,preparedXMLSources, selectedAddress);
             } else {
@@ -234,15 +235,22 @@ public class ModelConfigurator {
         }
     }
 
-    //TODO use on type="2"
-    private void removeNodesWithTagValue(Node node,String tag,String value) {
+    private void removeNodesWithTagValue(Node node, String tag, String value) {
         if (node.getNodeType() == Node.ELEMENT_NODE) {
+            Element element = (Element) node;
+            
+            if (element.hasAttribute(tag) && element.getAttribute(tag).equals(value)) {
+                node.getParentNode().removeChild(node);
+                return; 
+            }
+            
             NodeList children = node.getChildNodes();
             for (int i = 0; i < children.getLength(); i++) {
-                removeNodesWithTagValue(children.item(i),tag,value);
+                removeNodesWithTagValue(children.item(i), tag, value);
             }
         }
     }
+    
 
 
     // Méthode récursive pour parcourir et supprimer les nœuds sms avec une adresse

@@ -31,7 +31,6 @@ public class Main {
     }
 
     private static void ShowMenu() {
-
         switch (JOptionPane.showConfirmDialog(null, "Would you like to run the model trainer first?")) {
             case 0:
                 launchTrainer();

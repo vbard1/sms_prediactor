@@ -26,3 +26,4 @@ replay_pid*
 # output and input files
 *.xml
 *.json
+*.lck
