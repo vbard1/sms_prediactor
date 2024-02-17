@@ -34,4 +34,8 @@ public class ConfigReader {
             e.printStackTrace();
         }
     }
+
+    public boolean getBooleanParamValue(String string) {
+        return Boolean.parseBoolean(getParamValue(string));
+    }
 }

@@ -1,6 +1,7 @@
 package src.model_builder;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import src.Main;
 
@@ -14,12 +15,12 @@ public class WordTree {
 
   private ProgressWindow progressWindow;
 
-  public WordTree(String value,int parentDepth) {
+  public WordTree(String value, int parentDepth) {
     this.value = value;
     this.occurrences = 1;
     this.nodeFrequency = -1;
     this.nextWords = new ArrayList<>();
-    this.depth=parentDepth+1;
+    this.depth = parentDepth + 1;
   }
 
   @Override
@@ -46,7 +47,11 @@ public class WordTree {
     return toStringRecursive(this, "", true);
   }
 
-  private String toStringRecursive(WordTree word, String prefix, boolean isLast) {
+  private String toStringRecursive(
+    WordTree word,
+    String prefix,
+    boolean isLast
+  ) {
     StringBuilder sb = new StringBuilder();
     sb
       .append("\n")
@@ -73,6 +78,7 @@ public class WordTree {
 
     return sb.toString();
   }
+
   public void computeFrequencies() {
     Main.log.info("Computing tree frequencies now...");
     computeFrequenciesRecursive(this);
@@ -80,23 +86,47 @@ public class WordTree {
   }
 
   private void computeFrequenciesRecursive(WordTree computationRootWord) {
-      if (progressWindow == null) {
-          progressWindow = new ProgressWindow("Local word frequencies computation", new String[]{"Progress : "});
-          progressWindow.setVisible(true);
+    /*if (progressWindow == null) {
+      progressWindow =
+        new ProgressWindow(
+          "Local word frequencies computation",
+          new String[] { "Progress : " }
+        );
+      progressWindow.setVisible(true);
+    }*/
+
+    double totalNodeOccurrences = 0;
+    for (WordTree word : computationRootWord.nextWords) {
+      totalNodeOccurrences += word.occurrences;
+    }
+    //int nbLvl2WordsTreated = 0;
+    for (WordTree word : computationRootWord.nextWords) {
+      word.nodeFrequency = ((double) word.occurrences) / totalNodeOccurrences;
+      if (word.depth == 2) {
+        //nbLvl2WordsTreated++;
+        /*progressWindow.setProgress(
+          0,
+          (int) (
+            (double) 100 * nbLvl2WordsTreated / (double) this.nextWords.size()
+          )
+        );*/
       }
-      
-      double totalNodeOccurrences = 0;
-      for(WordTree word : computationRootWord.nextWords) {
-        totalNodeOccurrences += word.occurrences;
-      }
-      int nbLvl2WordsTreated = 0;
-      for(WordTree word : computationRootWord.nextWords) {
-        word.nodeFrequency =((double)word.occurrences)/totalNodeOccurrences;
-        if(word.depth==2) {
-          nbLvl2WordsTreated++;
-          progressWindow.setProgress(0, (int)((double)100*nbLvl2WordsTreated/(double)this.nextWords.size()));
-        }
-        computeFrequenciesRecursive(word);
-      }
-  }  
+      computeFrequenciesRecursive(word);
+    }
+  }
+
+  public void sortByFrequency() {
+    sortByFrequencyRecursive(this);
+  }
+
+  private void sortByFrequencyRecursive(WordTree word) {
+    Collections.sort(
+      word.nextWords,
+      (w1, w2) -> Double.compare(w2.nodeFrequency, w1.nodeFrequency)
+    );
+
+    for (WordTree nextWord : word.nextWords) {
+      sortByFrequencyRecursive(nextWord);
+    }
+  }
 }
