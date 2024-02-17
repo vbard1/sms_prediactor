@@ -54,6 +54,7 @@ public class Main {
     WordTree trainedModel = launchModelTraining(
       launchModelConfiguration(selectFileUser())
     );
+    logModel(trainedModel);
     /*
     trainedModel.serializeToText("outputs/models/saved_model.temp.ser");
     WordTree wTree = WordTree.deserializeFromText("outputs/models/saved_model.temp.ser"); */
